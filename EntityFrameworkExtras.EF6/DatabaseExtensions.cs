@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
@@ -50,6 +51,20 @@ namespace EntityFrameworkExtras.EF6
             SetOutputParameterValues(info.SqlParameters, storedProcedure);
 
             return result;
+        }
+
+        public static DbDataReader ExecuteReader(this Database database, object storedProcedure)
+        {
+            if (storedProcedure == null)
+                throw new ArgumentNullException("storedProcedure");
+
+            var info = StoredProcedureParser.BuildStoredProcedureInfo(storedProcedure);
+
+            var cmd = database.Connection.CreateCommand();
+            cmd.CommandText = info.Sql;
+            cmd.Parameters.AddRange(info.SqlParameters);
+
+            return cmd.ExecuteReader();
         }
 
         private static void SetOutputParameterValues(IEnumerable<SqlParameter> sqlParameters, object storedProcedure)
