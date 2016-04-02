@@ -64,13 +64,15 @@ namespace EntityFrameworkExtras.EF6
             if (storedProcedure == null)
                 throw new ArgumentNullException("storedProcedure");
 
-            var info = StoredProcedureParser.BuildStoredProcedureInfo(storedProcedure);            
+            var info = StoredProcedureParser.BuildStoredProcedureInfo(storedProcedure);
 
-            var cmd = database.Connection.CreateCommand();
-            cmd.CommandText = info.Sql;
-            cmd.Parameters.AddRange(info.SqlParameters);    
-                    
-            return cmd.ExecuteReader();
+            using (var cmd = database.Connection.CreateCommand())
+            {
+                cmd.CommandText = info.Sql;
+                cmd.Parameters.AddRange(info.SqlParameters);
+
+                return cmd.ExecuteReader();
+            }
         }
 
         private static void SetOutputParameterValues(IEnumerable<SqlParameter> sqlParameters, object storedProcedure)

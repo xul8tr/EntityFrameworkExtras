@@ -66,11 +66,13 @@ namespace EntityFrameworkExtras.EF5
 
             var info = StoredProcedureParser.BuildStoredProcedureInfo(storedProcedure);
 
-            var cmd = database.Connection.CreateCommand();
-            cmd.CommandText = info.Sql;
-            cmd.Parameters.AddRange(info.SqlParameters);
+            using (var cmd = database.Connection.CreateCommand())
+            {
+                cmd.CommandText = info.Sql;
+                cmd.Parameters.AddRange(info.SqlParameters);
 
-            return cmd.ExecuteReader();
+                return cmd.ExecuteReader();
+            }
         }
 
         private static void SetOutputParameterValues(IEnumerable<SqlParameter> sqlParameters, object storedProcedure)
